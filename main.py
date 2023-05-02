@@ -1,11 +1,10 @@
 #==================================== Imports ====================================
 import tkinter
 from tkinter import ttk
-
 import datetime
-from datetime import timedelta
 import sv_ttk
 from PIL import ImageTk, Image
+
 
 #==================================== INIT Tkinter ====================================
 
@@ -17,17 +16,25 @@ root.title("Robotic Arm Software")
 frame = tkinter.Frame(root)
 frame.pack()
 
+
 #==================================== INIT ASSETS ====================================
 
 #Loading assets, initializing variables
 play_image = ImageTk.PhotoImage(Image.open("assets/play.png").resize((30,30)))
 pause_image = ImageTk.PhotoImage(Image.open("assets/pause.png").resize((30,30)))
 stop_image = ImageTk.PhotoImage(Image.open("assets/stop.png").resize((30,30)))
+close_image = ImageTk.PhotoImage(Image.open("assets/close.png").resize((30,30)))
+minim_image = ImageTk.PhotoImage(Image.open("assets/minimize.png").resize((30,30)))
 progress = 0
 state = "stopped"
 last_update = datetime.datetime.now()
 
+
 #==================================== Define Panes ====================================
+
+#essential ops
+button_frame = tkinter.Frame(root)
+button_frame.pack(side="top")
 
 #Left pane
 left_pane = tkinter.LabelFrame(frame, text="Options", padx=100)
@@ -49,7 +56,14 @@ middle_pane.grid(row=0,column=1,padx=20,pady=20)
 middle_bottom_pane = tkinter.LabelFrame(frame, text="Movement Control", padx=100)
 middle_bottom_pane.grid(row=1,column=1,padx=20,pady=20)
 
+
 #==================================== Begin Widgets ====================================
+
+#Top functions
+close_app = ttk.Button(button_frame, image=close_image, command=root.destroy)
+close_app.pack(side="right")
+mini_app = ttk.Button(button_frame, image=minim_image, command=root.iconify)
+mini_app.pack(side="right")
 
 #Left pane widgets
 style = ttk.Style()
@@ -65,7 +79,6 @@ Add_task = ttk.Button(left_pane, text="Add Task", padding=(52,5))
 Add_task.pack(pady=(10,0))
 Remove_task = ttk.Button(left_pane, text="Remove Task", padding=(39,5))
 Remove_task.pack(pady=(10,10))
-
 
 #Left bottom pane widgets
 Task_list = ttk.Label(left_bottom_pane, text="Task List", padding=(20,20,20,20))
@@ -83,7 +96,6 @@ Task_list.pack_propagate(0)
 Select_task.pack_propagate(0)
 Run_task.pack_propagate(0)
 
-
 #Middle pane widgets
 arm1_label = tkinter.Label(middle_pane, text="Robotic Arm 1")
 arm1_label.grid(row=0,column=0,padx=20,pady=20)
@@ -99,7 +111,6 @@ progress_bar = tkinter.Canvas(progress_frame, width=200,height=20)
 progress_bar.create_rectangle(0, 0, 200, 20, fill="grey")
 progress_bar.create_rectangle(0, 0, 0, 20, fill="green", tags="progress")
 progress_bar.grid(row=2,column=1)
-
 
 #Middle bottom pane widgets
 Retrv_curr_pos = ttk.Button(middle_bottom_pane, text="Retrieve\nCurrent\nPosition", padding=(10,40))
@@ -121,8 +132,10 @@ mv_text_entry2.grid(row=3,column=1,pady=(5,10),padx=(10,10),columnspan=2,sticky=
 time_label = ttk.Label(middle_bottom_pane, text="", padding=(20,20,20,20))
 time_label.grid(row=4,column=0,padx=12,pady=12,columnspan=3)
 
-#==================================== EXTRA FUNC ====================================
 
+#==================================== UI Update Functions ====================================
+
+#Arm Selections UI Updates
 def select_arm1():
     arm1_selector.configure(bg="green")
     arm2_selector.configure(bg="gray")
@@ -148,6 +161,7 @@ def show_arm_spinbox():
     label_null.grid_forget()
     distance_label.grid(row=5,column=0,padx=20,pady=20)
     spinbox_distance.grid(row=5,column=1,padx=20,pady=20)
+
 
 #==================================== Widgets Contd. ====================================
 
@@ -203,13 +217,9 @@ ry_button.grid(row=10,column=1,padx=5,pady=5)
 rz_button.grid(row=11,column=1,padx=5,pady=5)
 
 
-
-
-
 #==================================== Begin Functions ====================================
 
-
-
+#Button python code (Status Lambda function)
 def switch_state(button):
     current_state = button['text']
     if current_state == 'Running':
@@ -222,6 +232,7 @@ def switch_state(button):
         button['text'] = 'Running'
         button['bg'] = 'green'
 
+#Live time function
 def update_time():
     current_time = datetime.datetime.now()
     time_str = current_time.strftime("%H:%M:%S")
@@ -229,6 +240,10 @@ def update_time():
     time_label.config(text="Current Time: " + time_str + "\nToday's Date: " + date_str)
     root.after(1000, update_time)
 
+
+#==================================== Progress Bar Functions ====================================
+
+# Progress Bar Code From Here
 def start():
     global state
     global last_update
@@ -364,6 +379,8 @@ stop_button.grid(row=3,column=2, padx=20, pady=10)
 
 update_progress()
 
+
+#==================================== End Functions (Tkinter) ====================================
 
 # This is where the magic happens
 sv_ttk.set_theme("dark")
