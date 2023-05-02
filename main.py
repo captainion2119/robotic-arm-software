@@ -4,7 +4,7 @@ from tkinter import ttk
 import datetime
 import sv_ttk
 from PIL import ImageTk, Image
-import taskhandler
+import taskcreator
 
 
 #==================================== INIT Tkinter ====================================
@@ -58,13 +58,19 @@ middle_bottom_pane = tkinter.LabelFrame(frame, text="Movement Control", padx=100
 middle_bottom_pane.grid(row=1,column=1,padx=20,pady=20)
 
 
+#==================================== Essential Functions ====================================
+
+#Task Handler Loader
+def callhandler():
+    taskcreator.create_interface(root)
+
 #==================================== Begin Widgets ====================================
 
 #Top functions
 close_app = ttk.Button(button_frame, image=close_image, command=root.destroy)
 close_app.pack(side="right")
-mini_app = ttk.Button(button_frame, image=minim_image, command=root.iconify)
-mini_app.pack(side="right")
+minimize_app = ttk.Button(button_frame, image=minim_image, command=root.iconify)
+minimize_app.pack(side="right")
 
 #Left pane widgets
 style = ttk.Style()
@@ -76,7 +82,7 @@ Load_task = ttk.Button(left_pane, text="Load Tasks", padding=(45,5), style="Cust
 Load_task.pack(pady=(10,0))
 Save_task = ttk.Button(left_pane, text="Save Tasks", padding=(45,5))
 Save_task.pack(pady=(10,0))
-Add_task = ttk.Button(left_pane, text="Add Task", padding=(52,5))
+Add_task = ttk.Button(left_pane, text="Add Task", padding=(52,5),command=callhandler)
 Add_task.pack(pady=(10,0))
 Remove_task = ttk.Button(left_pane, text="Remove Task", padding=(39,5))
 Remove_task.pack(pady=(10,10))
