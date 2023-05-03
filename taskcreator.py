@@ -20,10 +20,14 @@ def create_interface(master):
     tasks = []
     wait_time_append = []
     arm_var = tk.IntVar()
+    check1_var = tk.BooleanVar()
+    check2_var = tk.BooleanVar()
     def set_arm1():
         arm_var.set(1)
+        check2_var.set(False)
     def set_arm2():
         arm_var.set(2)
+        check1_var.set(False)
 
 
     #====================== Begin UI ======================
@@ -33,8 +37,9 @@ def create_interface(master):
     separator_0 = ttk.Separator(data_label_master, orient="horizontal")
     task_name = tk.Label(data_label_master,text="Task name")
     separator_1 = ttk.Separator(data_label_master, orient="horizontal")
-    arm1_button = tk.Radiobutton(data_label_master,text="Arm 1", variable=arm_var, value=1, command=set_arm1)
-    arm2_button = tk.Radiobutton(data_label_master,text="Arm 2", variable=arm_var, value=2, command=set_arm2)
+    arm_label = tk.Label(data_label_master,text="Select arm")
+    arm1_button = tk.Checkbutton(data_label_master,text="Arm 1", command=set_arm1,selectcolor="black",variable=check1_var)
+    arm2_button = tk.Checkbutton(data_label_master,text="Arm 2", command=set_arm2,selectcolor="black",variable=check2_var)
     separator_4 = ttk.Separator(data_label_master,orient="horizontal")
     coord_x = tk.Label(data_label_master, text="X coordinate")
     coord_y = tk.Label(data_label_master, text="Y coordinate")
@@ -49,13 +54,14 @@ def create_interface(master):
     separator_0.grid(row=1,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
     task_name.grid(row=2,column=0,padx=20,pady=20)
     separator_1.grid(row=3,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
-    arm1_button.grid(row=4,column=0,padx=20,pady=20)
+    arm_label.grid(row=4,column=0)
+    arm1_button.grid(row=4,column=1,padx=20,pady=20)
     arm2_button.grid(row=4,column=2,padx=20,pady=20)
     separator_4.grid(row=5,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
-    coord_x.grid(row=5, column=0, padx=20, pady=20)
-    coord_y.grid(row=5, column=1, padx=20, pady=20)
-    coord_z.grid(row=5, column=2, padx=20, pady=20)
-    wait_time.grid(row=8, column=0, padx=20, pady=20)
+    coord_x.grid(row=6, column=0, padx=20, pady=20)
+    coord_y.grid(row=6, column=1, padx=20, pady=20)
+    coord_z.grid(row=6, column=2, padx=20, pady=20)
+    wait_time.grid(row=9, column=0, padx=20, pady=20)
 
 
     #====================== Lambda Functions ======================
@@ -92,21 +98,21 @@ def create_interface(master):
     coord_x_entry.insert(0, "Enter X coord")
     coord_x_entry.bind("<FocusIn>", lambda event: on_entry_click(event, coord_x_entry))
     coord_x_entry.bind("<FocusOut>", lambda event: on_focusout(event,coord_x_entry, "Enter X coord"))
-    coord_x_entry.grid(row=6, column=0, padx=20, pady=20)
+    coord_x_entry.grid(row=7, column=0, padx=20, pady=20)
     coord_y_entry.insert(0, "Enter Y coord")
     coord_y_entry.bind("<FocusIn>", lambda event: on_entry_click(event, coord_y_entry))
     coord_y_entry.bind("<FocusOut>", lambda event: on_focusout(event,coord_y_entry, "Enter Y coord"))
-    coord_y_entry.grid(row=6, column=1, padx=20, pady=20)
+    coord_y_entry.grid(row=7, column=1, padx=20, pady=20)
     coord_z_entry.insert(0, "Enter Z coord")
     coord_z_entry.bind("<FocusIn>", lambda event: on_entry_click(event, coord_z_entry))
     coord_z_entry.bind("<FocusOut>", lambda event: on_focusout(event,coord_z_entry, "Enter Z coord"))
-    coord_z_entry.grid(row=6, column=2, padx=20, pady=20)
-    separator_2.grid(row=7,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
+    coord_z_entry.grid(row=7, column=2, padx=20, pady=20)
+    separator_2.grid(row=8,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
     wait_text.insert(0, "Enter wait time")
     wait_text.bind("<FocusIn>", lambda event: on_entry_click(event, wait_text))
     wait_text.bind("<FocusOut>", lambda event: on_focusout(event,wait_text, "Enter wait time"))
-    wait_text.grid(row=8, column=1, padx=20, pady=20)
-    separator_3.grid(row=9,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
+    wait_text.grid(row=9, column=1, padx=20, pady=20)
+    separator_3.grid(row=10,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
 
 
     #====================== Button Functions ======================
@@ -117,6 +123,9 @@ def create_interface(master):
         coord_y = coord_y_entry.get()
         coord_z = coord_z_entry.get()
         wait_time = wait_text.get()
+        arm = arm_var.get()
+        check1 = check1_var.get()
+        check2 = check2_var.get()
 
 
         if task_name == "" or task_name == "Enter Task name":
@@ -125,38 +134,41 @@ def create_interface(master):
         else:
 
             task_name_entry.config(state=tk.DISABLED)
-
-            if coord_x == "" or coord_y == "" or coord_z == "" or coord_x == "Enter X coord" or coord_y == "Enter Y coord" or coord_z == "Enter Z coord":
-                if wait_time == "" or wait_time == "Enter wait time":
-                    messagebox.showerror("Error", "Please enter all coordinates")
-                    return
-                else:
-                    coord_x = coord_y = coord_z = -1
-
-            task_data = [{"x": int(coord_x), "y": int(coord_y), "z": int(coord_z)}]
-
-            if wait_time != "Enter wait time":
-                if coord_x != -1 and coord_y != -1 and coord_z != -1:
-                    messagebox.showerror("Error","Coordinates have to be empty to enter wait command")
-                    return
-                else:
-                    wait_time_append.append({"wait": int(wait_time)})
-
-            for task in tasks:
-                if task["task name"] == task_name:
-                    if coord_x == -1 and coord_y == -1 and coord_z == -1:
-                        task["task data"].extend(wait_time_append)
-                        wait_time_append.clear()
-                        break
-                    else:
-                        task["task data"].extend(task_data)
-                        break
+            if check1 == False and check2 == False:
+                messagebox.showerror("Error", "Please select an arm")
+                return
             else:
-                task = {"task name": task_name, "task data": task_data}
-                tasks.append(task)
+                if coord_x == "" or coord_y == "" or coord_z == "" or coord_x == "Enter X coord" or coord_y == "Enter Y coord" or coord_z == "Enter Z coord":
+                    if wait_time == "" or wait_time == "Enter wait time":
+                        messagebox.showerror("Error", "Please enter all coordinates")
+                        return
+                    else:
+                        coord_x = coord_y = coord_z = -1
 
-            print(json.dumps(task, indent=4))
-            update_list_view(list_view,tasks)
+                task_data = [{"arm":int(arm),"x": int(coord_x), "y": int(coord_y), "z": int(coord_z)}]
+
+                if wait_time != "Enter wait time":
+                    if coord_x != -1 and coord_y != -1 and coord_z != -1:
+                        messagebox.showerror("Error","Coordinates have to be empty to enter wait command")
+                        return
+                    else:
+                        wait_time_append.append({"wait": int(wait_time)})
+
+                for task in tasks:
+                    if task["task name"] == task_name:
+                        if coord_x == -1 and coord_y == -1 and coord_z == -1:
+                            task["task data"].extend(wait_time_append)
+                            wait_time_append.clear()
+                            break
+                        else:
+                            task["task data"].extend(task_data)
+                            break
+                else:
+                    task = {"task name": task_name, "task data": task_data}
+                    tasks.append(task)
+
+                print(json.dumps(task, indent=4))
+                update_list_view(list_view,tasks)
 
     def update_list_view(list_view, tasks):
         # Clear existing items in the list view
@@ -177,10 +189,11 @@ def create_interface(master):
                 elif "end" in step:
                     list_view.insert(tk.END, "End of task")
                 else:
+                    arm = step["arm"]
                     x = step["x"]
                     y = step["y"]
                     z = step["z"]
-                    list_view.insert(tk.END, f"Move to x={x}, y={y}, z={z}")
+                    list_view.insert(tk.END, f"Move arm{arm} to x={x}, y={y}, z={z}")
 
             # Add an empty line after each task
             list_view.insert(tk.END, "")
@@ -218,11 +231,11 @@ def create_interface(master):
 
     #====================== Buttons Formatting ======================
 
-    button_add.grid(row=10,column=0,padx=20,pady=20)
-    button_clear.grid(row=10,column=1,padx=20,pady=20)
-    button_save.grid(row=10,column=2,padx=20,pady=20)
-    list_view_frame.grid(row=0,column=4,rowspan=11,sticky="NS")
-    list_view.grid(row=0,column=0,ipady=100)
+    button_add.grid(row=11,column=0,padx=20,pady=20)
+    button_clear.grid(row=11,column=1,padx=20,pady=20)
+    button_save.grid(row=11,column=2,padx=20,pady=20)
+    list_view_frame.grid(row=0,column=4,rowspan=12,sticky="NS")
+    list_view.grid(row=0,column=1,ipady=130,ipadx=40)
 
     #====================== Tkinter End Statements ======================
     sv_ttk.set_theme("dark")
