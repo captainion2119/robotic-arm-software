@@ -19,6 +19,11 @@ def create_interface(master):
 
     tasks = []
     wait_time_append = []
+    arm_var = tk.IntVar()
+    def set_arm1():
+        arm_var.set(1)
+    def set_arm2():
+        arm_var.set(2)
 
 
     #====================== Begin UI ======================
@@ -28,6 +33,9 @@ def create_interface(master):
     separator_0 = ttk.Separator(data_label_master, orient="horizontal")
     task_name = tk.Label(data_label_master,text="Task name")
     separator_1 = ttk.Separator(data_label_master, orient="horizontal")
+    arm1_button = tk.Radiobutton(data_label_master,text="Arm 1", variable=arm_var, value=1, command=set_arm1)
+    arm2_button = tk.Radiobutton(data_label_master,text="Arm 2", variable=arm_var, value=2, command=set_arm2)
+    separator_4 = ttk.Separator(data_label_master,orient="horizontal")
     coord_x = tk.Label(data_label_master, text="X coordinate")
     coord_y = tk.Label(data_label_master, text="Y coordinate")
     coord_z = tk.Label(data_label_master, text="Z coordinate")
@@ -41,10 +49,13 @@ def create_interface(master):
     separator_0.grid(row=1,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
     task_name.grid(row=2,column=0,padx=20,pady=20)
     separator_1.grid(row=3,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
-    coord_x.grid(row=4, column=0, padx=20, pady=20)
-    coord_y.grid(row=4, column=1, padx=20, pady=20)
-    coord_z.grid(row=4, column=2, padx=20, pady=20)
-    wait_time.grid(row=7, column=0, padx=20, pady=20)
+    arm1_button.grid(row=4,column=0,padx=20,pady=20)
+    arm2_button.grid(row=4,column=2,padx=20,pady=20)
+    separator_4.grid(row=5,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
+    coord_x.grid(row=5, column=0, padx=20, pady=20)
+    coord_y.grid(row=5, column=1, padx=20, pady=20)
+    coord_z.grid(row=5, column=2, padx=20, pady=20)
+    wait_time.grid(row=8, column=0, padx=20, pady=20)
 
 
     #====================== Lambda Functions ======================
@@ -81,21 +92,21 @@ def create_interface(master):
     coord_x_entry.insert(0, "Enter X coord")
     coord_x_entry.bind("<FocusIn>", lambda event: on_entry_click(event, coord_x_entry))
     coord_x_entry.bind("<FocusOut>", lambda event: on_focusout(event,coord_x_entry, "Enter X coord"))
-    coord_x_entry.grid(row=5, column=0, padx=20, pady=20)
+    coord_x_entry.grid(row=6, column=0, padx=20, pady=20)
     coord_y_entry.insert(0, "Enter Y coord")
     coord_y_entry.bind("<FocusIn>", lambda event: on_entry_click(event, coord_y_entry))
     coord_y_entry.bind("<FocusOut>", lambda event: on_focusout(event,coord_y_entry, "Enter Y coord"))
-    coord_y_entry.grid(row=5, column=1, padx=20, pady=20)
+    coord_y_entry.grid(row=6, column=1, padx=20, pady=20)
     coord_z_entry.insert(0, "Enter Z coord")
     coord_z_entry.bind("<FocusIn>", lambda event: on_entry_click(event, coord_z_entry))
     coord_z_entry.bind("<FocusOut>", lambda event: on_focusout(event,coord_z_entry, "Enter Z coord"))
-    coord_z_entry.grid(row=5, column=2, padx=20, pady=20)
-    separator_2.grid(row=6,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
+    coord_z_entry.grid(row=6, column=2, padx=20, pady=20)
+    separator_2.grid(row=7,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
     wait_text.insert(0, "Enter wait time")
     wait_text.bind("<FocusIn>", lambda event: on_entry_click(event, wait_text))
     wait_text.bind("<FocusOut>", lambda event: on_focusout(event,wait_text, "Enter wait time"))
-    wait_text.grid(row=7, column=1, padx=20, pady=20)
-    separator_3.grid(row=8,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
+    wait_text.grid(row=8, column=1, padx=20, pady=20)
+    separator_3.grid(row=9,columnspan=4,sticky="ew",pady=(5,5),ipady=2)
 
 
     #====================== Button Functions ======================
@@ -207,10 +218,10 @@ def create_interface(master):
 
     #====================== Buttons Formatting ======================
 
-    button_add.grid(row=9,column=0,padx=20,pady=20)
-    button_clear.grid(row=9,column=1,padx=20,pady=20)
-    button_save.grid(row=9,column=2,padx=20,pady=20)
-    list_view_frame.grid(row=0,column=4,rowspan=10,sticky="NS")
+    button_add.grid(row=10,column=0,padx=20,pady=20)
+    button_clear.grid(row=10,column=1,padx=20,pady=20)
+    button_save.grid(row=10,column=2,padx=20,pady=20)
+    list_view_frame.grid(row=0,column=4,rowspan=11,sticky="NS")
     list_view.grid(row=0,column=0,ipady=100)
 
     #====================== Tkinter End Statements ======================
