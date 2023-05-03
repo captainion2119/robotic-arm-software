@@ -12,6 +12,7 @@ def create_interface(master):
     data_entry_window = tk.Toplevel(master)
     data_entry_window.title("Task Creator")
     data_entry_window.resizable(False,False)
+    data_entry_window.attributes("-topmost",1)
     data_entry_frame = tk.Frame(data_entry_window)
     data_entry_frame.grid()
 
@@ -131,18 +132,18 @@ def create_interface(master):
 
 
         if task_name == "" or task_name == "Enter Task name":
-            messagebox.showerror("Error", "Please enter a Task name")
+            messagebox.showerror("Error", "Please enter a Task name",parent=data_entry_window)
             return
         else:
 
             task_name_entry.config(state=tk.DISABLED)
             if check1 == False and check2 == False:
-                messagebox.showerror("Error", "Please select an arm")
+                messagebox.showerror("Error", "Please select an arm",parent=data_entry_window)
                 return
             else:
                 if coord_x == "" or coord_y == "" or coord_z == "" or coord_x == "Enter X coord" or coord_y == "Enter Y coord" or coord_z == "Enter Z coord":
                     if wait_time == "" or wait_time == "Enter wait time":
-                        messagebox.showerror("Error", "Please enter all coordinates")
+                        messagebox.showerror("Error", "Please enter all coordinates",parent=data_entry_window)
                         return
                     else:
                         coord_x = coord_y = coord_z = -1
@@ -151,7 +152,7 @@ def create_interface(master):
 
                 if wait_time != "Enter wait time":
                     if coord_x != -1 and coord_y != -1 and coord_z != -1:
-                        messagebox.showerror("Error","Coordinates have to be empty to enter wait command")
+                        messagebox.showerror("Error","Coordinates have to be empty to enter wait command",parent=data_entry_window)
                         return
                     else:
                         wait_time_append.append({"arm":int(arm),"wait": int(wait_time)})
@@ -200,7 +201,7 @@ def create_interface(master):
             list_view.insert(tk.END, "")
 
     def clear_task():
-        response = messagebox.askquestion("Confirmation","Are you sure you want to clear all data?",icon="warning")
+        response = messagebox.askquestion("Confirmation","Are you sure you want to clear all data?",icon="warning",parent=data_entry_window)
 
         if response == "yes":
             tasks.clear()
@@ -243,16 +244,18 @@ def create_interface(master):
     def save_task():
         task_name = task_name_entry.get()
         if os.path.isfile(directory + task_name + ".json"):
-            messagebox.showerror("Error","A task with the same name exists already!")
+            messagebox.showerror("Error","A task with the same name exists already!",parent=data_entry_window)
 
         else:
             if len(tasks) == 0:
-                messagebox.showerror("Error","Please enter a task")
+                messagebox.showerror("Error","Please enter a task",parent=data_entry_window)
                 return
             else:
+                #add {"end":True} to the end of tasks
+                tasks[-1]["task data"].append({"end":True})
                 with open(f"{directory}{task_name}"+".json", "w") as f:
                     json.dump(tasks, f, indent=4)
-                messagebox.showinfo("Success","Tasks saved successfully")
+                messagebox.showinfo("Success","Tasks saved successfully",parent=data_entry_window)
                 clear_task_force()
                 return
             
@@ -279,3 +282,41 @@ def create_interface(master):
 
 
 #create_interface(root)
+
+def list_interface(master,file):
+    list_view_window = tk.Toplevel(master)
+    list_view_window.title("Task Creator")
+    list_view_window.resizable(False,False)
+    list_view_window.attributes("-topmost",1)
+    list_view_frame = tk.Frame(list_view_window)
+    list_view_frame.grid()
+
+    list_view = tk.LabelFrame(list_view_frame, text="Task Data")
+    list_view.grid(row=0,column=1,columnspan=2)
+
+    list = tk.Listbox(list_view,justify="left",font=("Helvetica",12))
+    list.grid(row=0,column=2,columnspan=3,padx=20,pady=20,ipadx=40,ipady=60)
+
+    path = "tasks/" + file + ".json"
+    with open(path,"r") as f:
+        data = json.load(f)
+    
+    list.delete(0,tk.END)
+    for task in data:
+        task_name = task["task name"]
+        task_data = task["task data"]
+        # Add task name as a heading
+        list.insert(tk.END, f"Task Name: {task_name}")
+        # Loop over task steps and add formatted strings to the list view
+        for step in task_data:
+            if "wait" in step:
+                list.insert(tk.END, f"Arm{step['arm']} wait for {step['wait']} seconds")
+            elif "end" in step:
+                list.insert(tk.END, f"End task")
+            else:
+                arm = step["arm"]
+                x = step["x"]
+                y = step["y"]
+                z = step["z"]
+                list.insert(tk.END, f"Move arm{arm} to x:{x}, y:{y}, z:{z}")
+        list.insert(tk.END, "")

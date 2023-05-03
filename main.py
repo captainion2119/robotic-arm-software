@@ -1,8 +1,10 @@
 #==================================== Imports ====================================
 import tkinter
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import datetime
 import sv_ttk
+import os
+import json
 from PIL import ImageTk, Image
 import taskcreator
 
@@ -26,6 +28,7 @@ pause_image = ImageTk.PhotoImage(Image.open("assets/pause.png").resize((30,30)))
 stop_image = ImageTk.PhotoImage(Image.open("assets/stop.png").resize((30,30)))
 close_image = ImageTk.PhotoImage(Image.open("assets/close.png").resize((30,30)))
 minim_image = ImageTk.PhotoImage(Image.open("assets/minimize.png").resize((30,30)))
+path = "./tasks"
 progress = 0
 state = "stopped"
 last_update = datetime.datetime.now()
@@ -64,6 +67,40 @@ middle_bottom_pane.grid(row=1,column=1,padx=20,pady=20)
 def callhandler():
     taskcreator.create_interface(root)
 
+def load_tasks():
+    files = [f for f in os.listdir(path) if f.endswith('.json')]
+    if Task_list_box.size()>0:
+        Task_list_box.delete(0,tkinter.END)
+        load_tasks()
+    else:
+        for filename in files:
+            with open(os.path.join(path, filename), 'r') as f:
+                task = json.load(f)
+                task_name = task[0]["task name"]
+                Task_list_box.insert(tkinter.END, task_name)
+    
+def remove_task():
+    selected_file = Task_list_box.curselection()
+    if selected_file:
+        selected_item = [Task_list_box.get(index) for index in selected_file]
+        response = messagebox.askquestion("Confirmation",f"Are you sure you want to delete {selected_item[0]}",icon="warning",parent=root)
+        if response == "yes":
+            os.remove(os.path.join(path, selected_item[0]+".json"))
+            load_tasks()
+        else:
+            return
+    else:
+        messagebox.showwarning("Warning","No Item selected!")
+
+def callviewer():
+    selected_file = Task_list_box.curselection()
+    if selected_file:
+        selected_item = [Task_list_box.get(index) for index in selected_file]
+        taskcreator.list_interface(root,selected_item[0])
+    else:
+        messagebox.showerror("Error","No task selected",parent=root)
+
+
 #==================================== Begin Widgets ====================================
 
 #Top functions
@@ -78,13 +115,13 @@ style.configure('Custom.TButton', borderwidth=0, relief=0)
 Task_opt = ttk.Label(left_pane, text="Task Options", padding=(20,20,20,20))
 Task_opt.grid(row=0,column=0,padx=20,pady=20)
 Task_opt.pack()
-Load_task = ttk.Button(left_pane, text="Load Tasks", padding=(45,5), style="Custom.TButton")
+Load_task = ttk.Button(left_pane, text="Load Tasks", padding=(45,5), style="Custom.TButton",command=load_tasks)
 Load_task.pack(pady=(10,0))
-Save_task = ttk.Button(left_pane, text="Save Tasks", padding=(45,5))
-Save_task.pack(pady=(10,0))
+View_task = ttk.Button(left_pane, text="View Task", padding=(45,5),command=callviewer)
+View_task.pack(pady=(10,0))
 Add_task = ttk.Button(left_pane, text="Add Task", padding=(52,5),command=callhandler)
 Add_task.pack(pady=(10,0))
-Remove_task = ttk.Button(left_pane, text="Remove Task", padding=(39,5))
+Remove_task = ttk.Button(left_pane, text="Remove Task", padding=(39,5),command=remove_task)
 Remove_task.pack(pady=(10,10))
 
 #Left bottom pane widgets
@@ -93,8 +130,6 @@ Task_list.grid(row=0,column=0,padx=20,pady=20)
 Task_list.pack()
 Task_list_box = tkinter.Listbox(left_bottom_pane, justify="center", font=("Helvetica", 12))
 Task_list_box.pack(fill='x',expand='False')
-for item in ['Task1','Task2','Task3']:
-    Task_list_box.insert('end', item)
 Select_task = ttk.Button(left_bottom_pane, text="Select Task", padding=(20,10,20,10),width=10)
 Select_task.pack(side=tkinter.LEFT, padx=(10, 10), pady=10)
 Run_task = ttk.Button(left_bottom_pane, text="Run Task", padding=(20,10,20,10),width=10)
