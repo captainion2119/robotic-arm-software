@@ -2,8 +2,9 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import sv_ttk
 import json
+import os
 
-root = tk.Tk()
+#root = tk.Tk()
 
 def create_interface(master):
     #====================== Tkinter window creation ======================
@@ -28,6 +29,7 @@ def create_interface(master):
     def set_arm2():
         arm_var.set(2)
         check1_var.set(False)
+    directory = "tasks/"
 
 
     #====================== Begin UI ======================
@@ -152,7 +154,7 @@ def create_interface(master):
                         messagebox.showerror("Error","Coordinates have to be empty to enter wait command")
                         return
                     else:
-                        wait_time_append.append({"wait": int(wait_time)})
+                        wait_time_append.append({"arm":int(arm),"wait": int(wait_time)})
 
                 for task in tasks:
                     if task["task name"] == task_name:
@@ -167,7 +169,6 @@ def create_interface(master):
                     task = {"task name": task_name, "task data": task_data}
                     tasks.append(task)
 
-                print(json.dumps(task, indent=4))
                 update_list_view(list_view,tasks)
 
     def update_list_view(list_view, tasks):
@@ -185,7 +186,7 @@ def create_interface(master):
             # Loop over task steps and add formatted strings to the list view
             for step in task_data:
                 if "wait" in step:
-                    list_view.insert(tk.END, f"Wait for {step['wait']} seconds")
+                    list_view.insert(tk.END, f"Wait arm{step['arm']} for {step['wait']} seconds")
                 elif "end" in step:
                     list_view.insert(tk.END, "End of task")
                 else:
@@ -216,16 +217,51 @@ def create_interface(master):
             on_focusout(None,coord_y_entry,"Enter Y coord")
             on_focusout(None,coord_z_entry,"Enter Z coord")
             on_focusout(None,wait_text,"Enter wait time")
+            check1_var.set(False)
+            check2_var.set(False)
         
         if response == "no":
             return
+        
+    def clear_task_force():
+        tasks.clear()
+        update_list_view(list_view,tasks)
+        task_name_entry.config(state=tk.NORMAL)
+        task_name_entry.delete(0,tk.END)
+        coord_x_entry.delete(0,tk.END)
+        coord_y_entry.delete(0,tk.END)
+        coord_z_entry.delete(0,tk.END)
+        wait_text.delete(0,tk.END)
+        on_focusout(None,task_name_entry,"Enter Task name")
+        on_focusout(None,coord_x_entry,"Enter X coord")
+        on_focusout(None,coord_y_entry,"Enter Y coord")
+        on_focusout(None,coord_z_entry,"Enter Z coord")
+        on_focusout(None,wait_text,"Enter wait time")
+        check1_var.set(False)
+        check2_var.set(False)
+        
+    def save_task():
+        task_name = task_name_entry.get()
+        if os.path.isfile(directory + task_name + ".json"):
+            messagebox.showerror("Error","A task with the same name exists already!")
+
+        else:
+            if len(tasks) == 0:
+                messagebox.showerror("Error","Please enter a task")
+                return
+            else:
+                with open(f"{directory}{task_name}"+".json", "w") as f:
+                    json.dump(tasks, f, indent=4)
+                messagebox.showinfo("Success","Tasks saved successfully")
+                clear_task_force()
+                return
             
 
     #====================== Buttons ======================
 
     button_add = tk.Button(data_label_master,text="Add",width=10,command=add_task)
     button_clear = tk.Button(data_label_master,text="Clear",width=10,command=clear_task)
-    button_save = tk.Button(data_label_master,text="Save",width=10)
+    button_save = tk.Button(data_label_master,text="Save",width=10,command=save_task)
     list_view_frame = tk.LabelFrame(data_label_master,text="Entered Tasks",font=("Helvetica",12))
     list_view = tk.Listbox(list_view_frame, justify="center", font=("Helvetica", 12))
 
@@ -242,4 +278,4 @@ def create_interface(master):
     data_entry_window.mainloop()
 
 
-create_interface(root)
+#create_interface(root)

@@ -4,8 +4,6 @@
 prj_pnv.code-workspace
 Filesystem.drawio
 
-*/__pycache__/
+software-py/__pycache__
 test/*
-
-
 
