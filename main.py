@@ -6,7 +6,11 @@ import sv_ttk
 import os
 import json
 from PIL import ImageTk, Image
+import subprocess
+
+#==================================== Importing Custom Modules ====================================
 import taskcreator
+import databridge
 
 
 #==================================== INIT Tkinter ====================================
@@ -14,7 +18,6 @@ import taskcreator
 # Initializing all require Tkinter functions
 root = tkinter.Tk()
 root.attributes('-fullscreen', True)
-root.geometry("1920x1080")
 root.title("Robotic Arm Software")
 frame = tkinter.Frame(root)
 frame.pack()
@@ -32,7 +35,7 @@ path = "./tasks"
 progress = 0
 state = "stopped"
 last_update = datetime.datetime.now()
-
+com_ports = databridge.getPorts()
 
 #==================================== Define Panes ====================================
 
@@ -100,6 +103,10 @@ def callviewer():
     else:
         messagebox.showerror("Error","No task selected",parent=root)
 
+def get_ports():
+    com_ports = databridge.getPorts()
+    root.after(10000,get_ports)
+
 
 #==================================== Begin Widgets ====================================
 
@@ -143,9 +150,9 @@ arm1_label = tkinter.Label(middle_pane, text="Robotic Arm 1")
 arm1_label.grid(row=0,column=0,padx=20,pady=20)
 arm2_label = tkinter.Label(middle_pane, text="Robotic Arm 2")
 arm2_label.grid(row=0,column=1,padx=20,pady=20)
-arm1_button = tkinter.Button(middle_pane, text="Running", bg="green", width=10, command=lambda: switch_state(arm1_button))
+arm1_button = tkinter.Button(middle_pane, text="Idle", bg="purple", width=10, command=lambda: switch_state(arm1_button))
 arm1_button.grid(row=1, column=0, padx=10, pady=10)
-arm2_button = tkinter.Button(middle_pane, text="Running", bg="green", width=10, command=lambda: switch_state(arm2_button))
+arm2_button = tkinter.Button(middle_pane, text="Idle", bg="purple", width=10, command=lambda: switch_state(arm2_button))
 arm2_button.grid(row=1, column=1, padx=10, pady=10)
 progress_frame = tkinter.LabelFrame(middle_pane, text="Task Progress", padx=50)
 progress_frame.grid(row=2,column=0,columnspan=2,padx=20,pady=20)
@@ -204,6 +211,11 @@ def show_arm_spinbox():
     distance_label.grid(row=5,column=0,padx=20,pady=20)
     spinbox_distance.grid(row=5,column=1,padx=20,pady=20)
 
+def on_select_com(event):
+    selected_port = arm_combobox.get()
+    messagebox.showinfo("Info",f"{selected_port} selected!")
+
+
 
 #==================================== Widgets Contd. ====================================
 
@@ -212,7 +224,7 @@ arm_selector = tkinter.LabelFrame(right_pane,text="Arm Selection",padx=50)
 arm_selector.grid(row=0,column=0,padx=20,pady=20,columnspan=2)
 com_selector = tkinter.Label(arm_selector,text="COM Port Selection")
 com_selector.grid(row=1,column=0,padx=20,pady=20)
-arm_combobox = ttk.Combobox(arm_selector,values=["","COM3","COM4","COM6","COM8"])
+arm_combobox = ttk.Combobox(arm_selector,values=com_ports,state="readonly")
 arm_combobox.grid(row=1,column=1,padx=20,pady=20)
 arm1_selector = tkinter.Button(arm_selector,text="Select Arm1", command=select_arm1, bg="gray")
 arm1_selector.grid(row=2,column=0,padx=20,pady=20)
@@ -258,6 +270,7 @@ rx_button.grid(row=9,column=1,padx=5,pady=5)
 ry_button.grid(row=10,column=1,padx=5,pady=5)
 rz_button.grid(row=11,column=1,padx=5,pady=5)
 
+arm_combobox.bind("<<ComboboxSelected>>",on_select_com)
 
 #==================================== Begin Functions ====================================
 
@@ -420,7 +433,7 @@ pause_button.grid(row=3,column=1, padx=20, pady=10)
 stop_button.grid(row=3,column=2, padx=20, pady=10)
 
 update_progress()
-
+get_ports()
 
 #==================================== End Functions (Tkinter) ====================================
 
