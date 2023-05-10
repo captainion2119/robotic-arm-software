@@ -8,3 +8,4 @@ Filesystem.drawio
 test/*
 
 __pycache__/databridge.cpython-39.pyc
+__pycache__/taskcreator.cpython-39.pyc

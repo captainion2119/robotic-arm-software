@@ -320,3 +320,4 @@ def list_interface(master,file):
                 z = step["z"]
                 list.insert(tk.END, f"Move arm{arm} to x:{x}, y:{y}, z:{z}")
         list.insert(tk.END, "")
+
