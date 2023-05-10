@@ -104,8 +104,21 @@ def callviewer():
         messagebox.showerror("Error","No task selected",parent=root)
 
 def get_ports():
+    global com_ports
     com_ports = databridge.getPorts()
+    arm_combobox['values'] = com_ports
     root.after(10000,get_ports)
+
+def on_select_com(event):
+    selected_port = arm_combobox.get()
+    messagebox.showinfo("Info",f"{selected_port} selected!")
+    response = databridge.testConnection(selected_port)
+    if response == True:
+        messagebox.showinfo("Info","Connection Successful!")
+    elif response != True or False:
+        messagebox.showerror("Error", response)
+    else:
+        messagebox.showerror("Error","Connection Failed!")
 
 
 #==================================== Begin Widgets ====================================
@@ -210,11 +223,6 @@ def show_arm_spinbox():
     label_null.grid_forget()
     distance_label.grid(row=5,column=0,padx=20,pady=20)
     spinbox_distance.grid(row=5,column=1,padx=20,pady=20)
-
-def on_select_com(event):
-    selected_port = arm_combobox.get()
-    messagebox.showinfo("Info",f"{selected_port} selected!")
-
 
 
 #==================================== Widgets Contd. ====================================

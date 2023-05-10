@@ -1,5 +1,7 @@
 import serial.tools.list_ports
 import serial
+import time
+import threading
 
 
 def getPorts():
@@ -9,16 +11,40 @@ def getPorts():
 
     # Extract the port names from the list
     port_names = [port.device for port in com_ports]
-
     return port_names
 
-def serial_begin(com):
-    ser = serial.Serial(com,9600)
-    ser.write(b'hi')
+def testConnection(com):
+    def timeout_handler():
+        nonlocal connection_established
+        if not connection_established:
+            raise TimeoutError("Connection timed out")
+            
 
-    response = ser.readline().decode().strip()
-    print(response)
+    connection_established = False
 
-    ser.close()
+    try:
+        ArdObj = serial.Serial(com,115200,timeout=3)
+        timer = threading.Timer(10,timeout_handler)
+        timer.start()
 
-# need to begin testing of serial_begin()
+        time.sleep(3)
+
+        ArdObj.write('Ping\n'.encode())
+
+        recieveMsg = ArdObj.readline().decode().strip()
+        if recieveMsg == "Pong":
+            connection_established = True
+            ArdObj.close()
+            return True
+        else:
+            ArdObj.close()
+            return False
+    
+    except Exception as e:
+        return str(e)
+
+    finally:
+        if 'ArdObj' in locals():
+            ArdObj.close()
+            timer.cancel()
+
