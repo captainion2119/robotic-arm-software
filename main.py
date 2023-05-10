@@ -18,6 +18,7 @@ import databridge
 # Initializing all require Tkinter functions
 root = tkinter.Tk()
 root.attributes('-fullscreen', True)
+root.geometry("1920x1080")
 root.title("Robotic Arm Software")
 frame = tkinter.Frame(root)
 frame.pack()
@@ -52,15 +53,15 @@ left_bottom_pane = tkinter.LabelFrame(frame, text="Task List", padx=50)
 left_bottom_pane.grid(row=1,column=0,padx=20,pady=20)
 
 #Right pane
-right_pane = tkinter.LabelFrame(frame, text="Arm Operations", pady=100)
+right_pane = tkinter.LabelFrame(frame, text="Arm Operations", pady=50)
 right_pane.grid(row=0,column=2,padx=20,pady=20,rowspan=2)
 
 #Middle pane
-middle_pane = tkinter.LabelFrame(frame, text="Arm Statistics", padx=100)
+middle_pane = tkinter.LabelFrame(frame, text="Arm Statistics", padx=50)
 middle_pane.grid(row=0,column=1,padx=20,pady=20)
 
 #Middle bottom pane
-middle_bottom_pane = tkinter.LabelFrame(frame, text="Movement Control", padx=100)
+middle_bottom_pane = tkinter.LabelFrame(frame, text="Movement Control", padx=50)
 middle_bottom_pane.grid(row=1,column=1,padx=20,pady=20)
 
 
@@ -228,7 +229,7 @@ def show_arm_spinbox():
 #==================================== Widgets Contd. ====================================
 
 #Right pane widgets
-arm_selector = tkinter.LabelFrame(right_pane,text="Arm Selection",padx=50)
+arm_selector = tkinter.LabelFrame(right_pane,text="Arm Selection")
 arm_selector.grid(row=0,column=0,padx=20,pady=20,columnspan=2)
 com_selector = tkinter.Label(arm_selector,text="COM Port Selection")
 com_selector.grid(row=1,column=0,padx=20,pady=20)
@@ -238,7 +239,7 @@ arm1_selector = tkinter.Button(arm_selector,text="Select Arm1", command=select_a
 arm1_selector.grid(row=2,column=0,padx=20,pady=20)
 arm2_selector = tkinter.Button(arm_selector,text="Select Arm2", command=select_arm2, bg="gray")
 arm2_selector.grid(row=2,column=1,padx=20,pady=20)
-arm_type_selector = tkinter.LabelFrame(right_pane,text="Select Movement Type",padx=110)
+arm_type_selector = tkinter.LabelFrame(right_pane,text="Select Movement Type",padx=80)
 arm_type_selector.grid(row=3,column=0,padx=20,pady=20,columnspan=2)
 servo_button = tkinter.Button(arm_type_selector, text="Move Servo", command=show_servo_spinbox)
 arm_move_button = tkinter.Button(arm_type_selector, text="Move Arm", command=show_arm_spinbox)
