@@ -14,6 +14,8 @@ def getPorts():
     return port_names
 
 def testConnection(com):
+
+    #on connection failure run timeout
     def timeout_handler():
         nonlocal connection_established
         if not connection_established:
@@ -47,4 +49,5 @@ def testConnection(com):
         if 'ArdObj' in locals():
             ArdObj.close()
             timer.cancel()
+
 
