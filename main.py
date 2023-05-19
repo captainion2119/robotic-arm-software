@@ -6,7 +6,6 @@ import sv_ttk
 import os
 import json
 from PIL import ImageTk, Image
-import subprocess
 
 #==================================== Importing Custom Modules ====================================
 import taskcreator
@@ -31,6 +30,7 @@ pause_image = ImageTk.PhotoImage(Image.open("assets/pause.png").resize((30,30)))
 stop_image = ImageTk.PhotoImage(Image.open("assets/stop.png").resize((30,30)))
 close_image = ImageTk.PhotoImage(Image.open("assets/close.png").resize((30,30)))
 minim_image = ImageTk.PhotoImage(Image.open("assets/minimize.png").resize((30,30)))
+robo_arm_image = ImageTk.PhotoImage(Image.open("assets/arm.png").resize((256,256)))
 path = "./tasks"
 progress = 0
 state = "stopped"
@@ -58,7 +58,7 @@ right_pane = tkinter.LabelFrame(frame, text="Arm Operations", pady=50)
 right_pane.grid(row=0,column=2,padx=20,pady=20,rowspan=2)
 
 #Middle pane
-middle_pane = tkinter.LabelFrame(frame, text="Arm Statistics", padx=50)
+middle_pane = tkinter.LabelFrame(frame, padx=50, bg="gray")
 middle_pane.grid(row=0,column=1,padx=20,pady=20)
 
 #Middle bottom pane
@@ -139,8 +139,8 @@ def run_task():
     if run_port:
         if run_selection_item is not None:
             run_file = f"tasks\{run_selection_item}.json"
-            play_button.invoke()
-            databridge.send_coordinates(run_file,run_port)
+            # play_button.invoke()
+            databridge.send_coordinates(run_file,run_port,root)
         else:
             messagebox.showerror("Error","No file selected",parent=root)
     else:
@@ -185,20 +185,10 @@ Select_task.pack_propagate(0)
 Run_task.pack_propagate(0)
 
 #Middle pane widgets
-arm1_label = tkinter.Label(middle_pane, text="Robotic Arm 1")
-arm1_label.grid(row=0,column=0,padx=20,pady=20)
-arm2_label = tkinter.Label(middle_pane, text="Robotic Arm 2")
-arm2_label.grid(row=0,column=1,padx=20,pady=20)
-arm1_button = tkinter.Button(middle_pane, text="Idle", bg="purple", width=10, command=lambda: switch_state(arm1_button))
-arm1_button.grid(row=1, column=0, padx=10, pady=10)
-arm2_button = tkinter.Button(middle_pane, text="Idle", bg="purple", width=10, command=lambda: switch_state(arm2_button))
-arm2_button.grid(row=1, column=1, padx=10, pady=10)
-progress_frame = tkinter.LabelFrame(middle_pane, text="Task Progress", padx=50)
-progress_frame.grid(row=2,column=0,columnspan=2,padx=20,pady=20)
-progress_bar = tkinter.Canvas(progress_frame, width=200,height=20)
-progress_bar.create_rectangle(0, 0, 200, 20, fill="grey")
-progress_bar.create_rectangle(0, 0, 0, 20, fill="green", tags="progress")
-progress_bar.grid(row=2,column=1)
+arm_images = tkinter.Label(middle_pane,image=robo_arm_image,bg="gray")
+arm_images.grid(row=0,column=0)
+arm_text = tkinter.Label(middle_pane,text="ROBOTIC \nARM \nSOFTWARE", font=("Helvetica", 24),bg="gray")
+arm_text.grid(row=0,column=1)
 
 #Middle bottom pane widgets
 Retrv_curr_pos = ttk.Button(middle_bottom_pane, text="Retrieve\nCurrent\nPosition", padding=(10,40))
@@ -227,14 +217,10 @@ time_label.grid(row=4,column=0,padx=12,pady=12,columnspan=3)
 def select_arm1():
     arm1_selector.configure(bg="green")
     arm2_selector.configure(bg="gray")
-    arm2_button.configure(bg="Purple",text="Idle")
-    arm1_button.configure(bg="Green",text="Running")
 
 def select_arm2():
     arm1_selector.configure(bg="gray")
     arm2_selector.configure(bg="green")
-    arm1_button.configure(bg="Purple",text="Idle")
-    arm2_button.configure(bg="Green",text="Running")
 
 def show_servo_spinbox():
     spinbox_distance.grid_forget()
@@ -308,19 +294,6 @@ arm_combobox.bind("<<ComboboxSelected>>",on_select_com)
 
 #==================================== Begin Functions ====================================
 
-#Button python code (Status Lambda function)
-def switch_state(button):
-    current_state = button['text']
-    if current_state == 'Running':
-        button['text'] = 'Error'
-        button['bg'] = 'red'
-    elif current_state == 'Error':
-        button['text'] = 'Idle'
-        button['bg'] = 'purple'
-    else:
-        button['text'] = 'Running'
-        button['bg'] = 'green'
-
 #Live time function
 def update_time():
     current_time = datetime.datetime.now()
@@ -330,143 +303,8 @@ def update_time():
     root.after(1000, update_time)
 
 
-#==================================== Progress Bar Functions ====================================
+#==================================== End Functions ====================================
 
-# Progress Bar Code From Here
-def start():
-    global state
-    global last_update
-    global progress
-    global progress_bar
-    global time_delta
-    if state == "stopped":
-        # Set the state to "playing"
-        state = "playing"
-
-        # Enable the pause and stop buttons
-        pause_button.config(state="normal")
-        stop_button.config(state="normal")
-
-        # Disable the play button
-        play_button.config(state="disabled")
-
-        # Set the time of the last update to the current time
-        last_update = datetime.datetime.now()
-
-    elif state == "paused":
-        # Set the state to "playing"
-        state = "playing"
-
-        # Enable the pause and stop buttons
-        pause_button.config(state="normal")
-        stop_button.config(state="normal")
-
-        # Disable the play button
-        play_button.config(state="disabled")
-
-        if last_update is None:
-            last_update = datetime.datetime.now()
-
-        # Calculate the time since the last update and add it to the last update time
-        now = datetime.datetime.now()
-        time_delta = (now - last_update).total_seconds()
-        last_update += datetime.timedelta(seconds=time_delta)
-        
-def pause():
-    global state
-    global last_update
-    global progress
-    global progress_bar
-    global time_delta
-    if state == "playing":
-        # Set the state to "paused"
-        state = "paused"
-        
-        # Disable the pause button
-        pause_button.config(state="disabled")
-        
-        # Enable the play button
-        play_button.config(state="normal")
-        
-        # Set the time of the last update to None
-        last_update = None
-        
-    elif state == "paused":
-        # Set the state to "playing"
-        state = "playing"
-        
-        # Enable the pause and stop buttons
-        pause_button.config(state="normal")
-        stop_button.config(state="normal")
-        
-        # Disable the play button
-        play_button.config(state="disabled")
-        
-        # Set the time of the last update to the current time
-        last_update = datetime.datetime.now()
-
-def stop():
-    global state
-    global last_update
-    global progress
-    global progress_bar
-    global time_delta
-    if state != "stopped":
-        # Set the state to "stopped"
-        state = "stopped"
-        
-        # Disable the pause and stop buttons
-        pause_button.config(state="disabled")
-        stop_button.config(state="disabled")
-        
-        # Enable the play button
-        play_button.config(state="normal")
-        
-        # Reset the progress to 0
-        progress = 0
-        progress_bar.coords("progress", (0, 0, 0, 20))
-    
-def update_progress():
-    global state
-    global last_update
-    global progress
-    global progress_bar
-    global time_delta
-    # Calculate the time since the last update
-    now = datetime.datetime.now()
-    time_delta = (now - last_update).total_seconds() if last_update is not None else 0
-    if state == "playing" or state == "paused":
-        # Update the progress based on the time delta
-        if state == "playing":
-            progress += time_delta * 10
-        if state == "stopped":
-            progress = 0
-        
-        progress = min(progress, 100)
-        # Update the progress bar
-        progress_bar.coords("progress", (0, 0, progress * 2, 20))
-        # Remove the previous progress text
-        progress_bar.delete("text")
-        # Add the new progress text
-        progress_text = f"{int(progress)}%"
-        progress_bar.create_text(100, 10, text=progress_text, tags="text")
-        # Check if the progress has reached 100%
-        
-        if progress >= 100:
-            stop()
-    # Set the time of the last update to the current time
-    last_update = now
-    # Call this function again after a short delay
-    root.after(100, update_progress)
-
-play_button = tkinter.Button(progress_frame, image=play_image, command=start)
-pause_button = tkinter.Button(progress_frame, image=pause_image, state="disabled", command=pause)
-stop_button = tkinter.Button(progress_frame, image=stop_image, state="disabled", command=stop)
-play_button.grid(row=3,column=0, padx=20, pady=10)
-pause_button.grid(row=3,column=1, padx=20, pady=10)
-stop_button.grid(row=3,column=2, padx=20, pady=10)
-
-update_progress()
 get_ports()
 
 #==================================== End Functions (Tkinter) ====================================

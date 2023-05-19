@@ -1,10 +1,13 @@
+import tkinter as tk
+from tkinter import ttk
+import sv_ttk
 import serial.tools.list_ports
 import serial
 import time
 import threading
 import json
 
-
+# root = tk.Tk()
 
 def getPorts():
 
@@ -53,18 +56,33 @@ def testConnection(com):
             timer.cancel()
 
 
-def send_coordinates(json_file,serial_port):
+def send_coordinates(json_file,serial_port,master):    
+    progress_view = tk.Toplevel(master)
+    progress_view.title("Progress")
+    progress_view.resizable(False,False)
+    progress_view.attributes("-topmost",1)
+    progress_frame = tk.Frame(progress_view)
+    progress_frame.grid()
+
     with open(json_file) as file:
         data = json.load(file)
-
-    progress_variable = 0
 
     steps = data[0]['task data']
     total_steps = len(steps)
 
     ser = serial.Serial(serial_port, baudrate=115200, timeout=3)  # Adjust baudrate if necessary
+    progress_variable = tk.DoubleVar()
+    progress_bar = tk.Canvas(progress_frame, width=200, height=20)
+    progress_bar.create_rectangle(0, 0, 200, 20, fill="grey")
+    progress_bar.create_rectangle(0, 0, 0, 20, fill="green", tags="progress")
+    progress_bar.grid(row=2, column=1)
+    progressing = tk.Label(progress_frame,text="Task is running, please wait...")
+    progressing.grid(row=3,column=1)
+    sv_ttk.set_theme("dark")
     
     time.sleep(3)
+
+    state = "playing"
 
     for step_index, step in enumerate(steps):
         if 'end' in step:
@@ -99,9 +117,25 @@ def send_coordinates(json_file,serial_port):
                 elif response == "End":
                     return
                 
-
-        progress_variable = int((step_index / (total_steps - 1)) * 100)
-    progress_variable = 100
+        progress_variable.set((step_index / (total_steps - 1)) * 100)
+        progress = progress_variable.get()
+        progress_bar.coords("progress", (0, 0, progress * 2, 20))
+        progress_bar.delete("text")
+        progress_text = f"{int(progress)}%"
+        progress_bar.create_text(100, 10, text=progress_text, tags="text")
+        progress_view.update()
+    progress_variable.set(100)
+    progress = progress_variable.get()
+    progress_bar.coords("progress", (0, 0, progress * 2, 20))
+    progress_bar.delete("text")
+    progress_text = f"{int(progress)}%"
+    progress_bar.create_text(100, 10, text=progress_text, tags="text")
+    progress_view.destroy()
 
 
     ser.close()
+    progress_view.mainloop()
+
+
+
+# send_coordinates("tasks/Task1.json","COM6",root)
