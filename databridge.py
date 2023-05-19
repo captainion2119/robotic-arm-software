@@ -2,6 +2,7 @@ import serial.tools.list_ports
 import serial
 import time
 import threading
+import json
 
 
 def getPorts():
@@ -51,3 +52,49 @@ def testConnection(com):
             timer.cancel()
 
 
+def send_coordinates(json_file,serial_port):
+    with open(json_file) as file:
+        data = json.load(file)
+
+    steps = data[0]['task data']
+
+    ser = serial.Serial(serial_port, baudrate=115200, timeout=3)  # Adjust baudrate if necessary
+    
+    time.sleep(3)
+
+    for step in steps:
+        if 'end' in step:
+            time.sleep(3)
+            endmsg = "end"
+            ser.write(endmsg.encode())
+            print(ser.readline().decode().strip())
+            return 
+        
+        arm_number = step['arm']
+        
+        if 'wait' in step:
+            wait_time = step['wait']
+            # Wait for the specified time
+            time.sleep(wait_time)
+        else:
+            coordinates = step
+            if 'end' in coordinates:
+                break  # End the loop if "end" instruction is encountered
+
+
+            message = f"{arm_number}{coordinates['x']:03d}{coordinates['y']:03d}{coordinates['z']:03d}\n"
+            # print(message) #NOTE: USE TO DEBUG
+
+
+            ser.write(message.encode())
+              # Send the coordinates over serial
+            while True:
+                response = ser.readline().decode().strip() # Read response from serial
+                # print(response) #NOTE: USE TO DEBUG
+                if response == "success":
+                    break  # Proceed to the next instruction
+                elif response == "End":
+                    return
+
+
+    ser.close()
