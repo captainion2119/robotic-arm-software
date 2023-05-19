@@ -5,6 +5,7 @@ import threading
 import json
 
 
+
 def getPorts():
 
     # Get a list of all available COM ports
@@ -56,19 +57,21 @@ def send_coordinates(json_file,serial_port):
     with open(json_file) as file:
         data = json.load(file)
 
+    progress_variable = 0
+
     steps = data[0]['task data']
+    total_steps = len(steps)
 
     ser = serial.Serial(serial_port, baudrate=115200, timeout=3)  # Adjust baudrate if necessary
     
     time.sleep(3)
 
-    for step in steps:
+    for step_index, step in enumerate(steps):
         if 'end' in step:
             time.sleep(3)
             endmsg = "end"
             ser.write(endmsg.encode())
-            print(ser.readline().decode().strip())
-            return 
+            break
         
         arm_number = step['arm']
         
@@ -95,6 +98,10 @@ def send_coordinates(json_file,serial_port):
                     break  # Proceed to the next instruction
                 elif response == "End":
                     return
+                
+
+        progress_variable = int((step_index / (total_steps - 1)) * 100)
+    progress_variable = 100
 
 
     ser.close()

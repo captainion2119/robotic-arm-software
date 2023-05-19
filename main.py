@@ -12,7 +12,6 @@ import subprocess
 import taskcreator
 import databridge
 
-
 #==================================== INIT Tkinter ====================================
 
 # Initializing all require Tkinter functions
@@ -37,6 +36,8 @@ progress = 0
 state = "stopped"
 last_update = datetime.datetime.now()
 com_ports = databridge.getPorts()
+run_selection_file = None
+run_selection_item = None
 
 #==================================== Define Panes ====================================
 
@@ -121,6 +122,30 @@ def on_select_com(event):
     else:
         messagebox.showerror("Error","Connection Failed!")
 
+def select_task():
+    global run_selection_file
+    global run_selection_item
+    run_selection_file = Task_list_box.curselection()
+    run_selection_item = [Task_list_box.get(index) for index in run_selection_file]
+    run_selection_item = run_selection_item[0]
+    run_selection_item = str(run_selection_item)
+    if run_selection_item:
+        messagebox.showinfo("Selected","file has been selected, you may run the task now",parent=root)
+    else:
+        messagebox.showerror("Error","No task selected",parent=root)
+
+def run_task():
+    run_port = arm_combobox.get()
+    if run_port:
+        if run_selection_item is not None:
+            run_file = f"tasks\{run_selection_item}.json"
+            play_button.invoke()
+            databridge.send_coordinates(run_file,run_port)
+        else:
+            messagebox.showerror("Error","No file selected",parent=root)
+    else:
+        messagebox.showerror("Error","No port selected")
+
 
 #==================================== Begin Widgets ====================================
 
@@ -151,9 +176,9 @@ Task_list.grid(row=0,column=0,padx=20,pady=20)
 Task_list.pack()
 Task_list_box = tkinter.Listbox(left_bottom_pane, justify="center", font=("Helvetica", 12))
 Task_list_box.pack(fill='x',expand='False')
-Select_task = ttk.Button(left_bottom_pane, text="Select Task", padding=(20,10,20,10),width=10)
+Select_task = ttk.Button(left_bottom_pane, text="Select Task", padding=(20,10,20,10),width=10,command=select_task)
 Select_task.pack(side=tkinter.LEFT, padx=(10, 10), pady=10)
-Run_task = ttk.Button(left_bottom_pane, text="Run Task", padding=(20,10,20,10),width=10)
+Run_task = ttk.Button(left_bottom_pane, text="Run Task", padding=(20,10,20,10),width=10,command=run_task)
 Run_task.pack(side=tkinter.LEFT, padx=(10, 10), pady=10)
 Task_list.pack_propagate(0)
 Select_task.pack_propagate(0)
