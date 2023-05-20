@@ -25,7 +25,7 @@ def testConnection(com):
         nonlocal connection_established
         if not connection_established:
             raise TimeoutError("Connection timed out")
-            
+
 
     connection_established = False
 
@@ -46,7 +46,7 @@ def testConnection(com):
         else:
             ArdObj.close()
             return False
-    
+
     except Exception as e:
         return str(e)
 
@@ -56,7 +56,7 @@ def testConnection(com):
             timer.cancel()
 
 
-def send_coordinates(json_file,serial_port,master):    
+def send_coordinates(json_file,serial_port,master):
     progress_view = tk.Toplevel(master)
     progress_view.title("Progress")
     progress_view.resizable(False,False)
@@ -79,10 +79,8 @@ def send_coordinates(json_file,serial_port,master):
     progressing = tk.Label(progress_frame,text="Task is running, please wait...")
     progressing.grid(row=3,column=1)
     sv_ttk.set_theme("dark")
-    
-    time.sleep(3)
 
-    state = "playing"
+    time.sleep(3)
 
     for step_index, step in enumerate(steps):
         if 'end' in step:
@@ -90,9 +88,9 @@ def send_coordinates(json_file,serial_port,master):
             endmsg = "end"
             ser.write(endmsg.encode())
             break
-        
+
         arm_number = step['arm']
-        
+
         if 'wait' in step:
             wait_time = step['wait']
             # Wait for the specified time
@@ -116,7 +114,7 @@ def send_coordinates(json_file,serial_port,master):
                     break  # Proceed to the next instruction
                 elif response == "End":
                     return
-                
+
         progress_variable.set((step_index / (total_steps - 1)) * 100)
         progress = progress_variable.get()
         progress_bar.coords("progress", (0, 0, progress * 2, 20))
@@ -139,3 +137,14 @@ def send_coordinates(json_file,serial_port,master):
 
 
 # send_coordinates("tasks/Task1.json","COM6",root)
+
+def retrv_cur_pos(arm_no,com_port):
+    ser = serial.Serial(com_port, baudrate=115200, timeout=3) # Adjust baudrate if necessary
+    time.sleep(3)
+    message = f"{arm_no}curpos\n"
+    ser.write(message.encode())
+    time.sleep(3)
+    response = ser.readline().decode().strip() # Read response from serial
+    ser.close()
+    # response = f"data sent to {com_port} and recieved successfully"
+    return response

@@ -38,6 +38,7 @@ last_update = datetime.datetime.now()
 com_ports = databridge.getPorts()
 run_selection_file = None
 run_selection_item = None
+select_arm = None
 
 #==================================== Define Panes ====================================
 
@@ -146,14 +147,43 @@ def run_task():
     else:
         messagebox.showerror("Error","No port selected")
 
+def getcurpos():
+    arm_no = select_arm
+    run_port = arm_combobox.get()
+    if arm_no is not None:
+        if run_port:
+            resp = databridge.retrv_cur_pos(arm_no,run_port)
+            resp_x = int(resp[:3])
+            resp_y = int(resp[3:6])
+            resp_z = int(resp[6:9])
+            mv_text_entry2.delete(0, "end")
+            mv_text_entry2.insert(0, "")
+            mv_text_entry2.insert(0, f"X: {resp_x}, Y: {resp_y}, Z: {resp_z}")
+        else:
+            messagebox.showerror("Error","No port selected!")
+    else:
+        messagebox.showerror("Error","No arm selected")
+
+def on_entry_click(event, entry):
+        if entry.cget("fg") == "grey":
+            entry.delete(0, "end")
+            entry.insert(0, "")
+            entry.config(fg="white")
+
+def on_focusout(event, entry, text):
+    if entry.get() == "":
+        entry.insert(0, text)
+        entry.config(fg="grey")
 
 #==================================== Begin Widgets ====================================
 
-#Top functions
+#Close minimize util functions
+button_frame = tkinter.LabelFrame(middle_pane)
+button_frame.grid(row=1,column=1,columnspan=2)
 close_app = ttk.Button(button_frame, image=close_image, command=root.destroy)
-close_app.pack(side="right")
+close_app.grid(row=0,column=0)
 minimize_app = ttk.Button(button_frame, image=minim_image, command=root.iconify)
-minimize_app.pack(side="right")
+minimize_app.grid(row=0,column=1)
 
 #Left pane widgets
 style = ttk.Style()
@@ -191,36 +221,46 @@ arm_text = tkinter.Label(middle_pane,text="ROBOTIC \nARM \nSOFTWARE", font=("Hel
 arm_text.grid(row=0,column=1)
 
 #Middle bottom pane widgets
-Retrv_curr_pos = ttk.Button(middle_bottom_pane, text="Retrieve\nCurrent\nPosition", padding=(10,40))
+Retrv_curr_pos = ttk.Button(middle_bottom_pane, text="Retrieve\nCurrent\nPosition", padding=(10,40),command=getcurpos)
 Retrv_curr_pos.grid(row=0,column=0,rowspan=4,pady=(10,0),padx=(10,0),sticky='EW')
 joint_label = ttk.Label(middle_bottom_pane, text="Joint Values")
 joint_label.grid(row=0,column=1,pady=(10,0),padx=(10,0),sticky='W')
 mv_to_joints = ttk.Button(middle_bottom_pane, text="Move to Joints", padding=(25,5))
 mv_to_joints.grid(row=0,column=2,pady=(10,0),padx=(10,10),sticky='E')
-mv_text_entry = ttk.Entry(middle_bottom_pane, width=45)
+mv_text_entry = tkinter.Entry(middle_bottom_pane, width=45,fg="grey")
 mv_text_entry.insert(0, "Enter the joint values")
 mv_text_entry.grid(row=1,column=1,pady=(5,0),padx=(10,10),columnspan=2,sticky='W')
 cart_pos = ttk.Label(middle_bottom_pane, text="Cartesian Position")
 cart_pos.grid(row=2,column=1,pady=(10,0),padx=(10,0),sticky='W')
 mv_to_cart = ttk.Button(middle_bottom_pane, text="Move to Position", padding=(12,5))
 mv_to_cart.grid(row=2,column=2,pady=(10,0),padx=(10,10),sticky='E')
-mv_text_entry2 = ttk.Entry(middle_bottom_pane, width=45)
+mv_text_entry2 = tkinter.Entry(middle_bottom_pane, width=45,fg="grey")
 mv_text_entry2.insert(0, "Enter the cartesian values")
 mv_text_entry2.grid(row=3,column=1,pady=(5,10),padx=(10,10),columnspan=2,sticky='W')
 time_label = ttk.Label(middle_bottom_pane, text="", padding=(20,20,20,20))
 time_label.grid(row=4,column=0,padx=12,pady=12,columnspan=3)
+
+mv_text_entry.bind("<FocusIn>",lambda event: on_entry_click(event,mv_text_entry))
+mv_text_entry.bind("<FocusOut>",lambda event: on_focusout(event,mv_text_entry,"Enter the joint values"))
+mv_text_entry2.bind("<FocusIn>",lambda event: on_entry_click(event,mv_text_entry2))
+mv_text_entry2.bind("<FocusOut>",lambda event: on_focusout(event,mv_text_entry2,"Enter the cartesian values"))
 
 
 #==================================== UI Update Functions ====================================
 
 #Arm Selections UI Updates
 def select_arm1():
+    global select_arm
     arm1_selector.configure(bg="green")
     arm2_selector.configure(bg="gray")
+    select_arm = 1
+
 
 def select_arm2():
+    global select_arm
     arm1_selector.configure(bg="gray")
     arm2_selector.configure(bg="green")
+    select_arm = 2
 
 def show_servo_spinbox():
     spinbox_distance.grid_forget()
@@ -303,7 +343,7 @@ def update_time():
     root.after(1000, update_time)
 
 
-#==================================== End Functions ====================================
+#==================================== Closing Functions (Util) ====================================
 
 get_ports()
 
