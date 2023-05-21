@@ -28,6 +28,16 @@ void loop() {
       ReadData.trim();
       if (ReadData == "Ping") {
         Serial.print("Pong");
+      } else if (ReadData.startsWith("s1") || ReadData.startsWith("s2") || ReadData.startsWith("s3") || ReadData.startsWith("s4") || ReadData.startsWith("s5") || ReadData.startsWith("s6")){
+        // s1050
+        String servo = ReadData.substring(0,2);
+        int ang = ReadData.substring(2).toInt();
+        movePositive(servo,ang);
+      } else if (ReadData.startsWith("rs1") || ReadData.startsWith("rs2") || ReadData.startsWith("rs3") || ReadData.startsWith("rs4") || ReadData.startsWith("rs5") || ReadData.startsWith("rs6")){
+        // rs1050
+        String servo = ReadData.substring(0,3);
+        int ang = ReadData.substring(3).toInt();
+        moveNegative(servo,ang);
       } else if (ReadData.toInt() <= 17) {
         // 1001002003
         int arm = ReadData.substring(0, 1).toInt();
@@ -59,4 +69,50 @@ void moveToPosition(int arm, int s1, int s2, int s3, int s4, int s5){
 
   Serial.print("\n");
   Serial.println("success");
+}
+
+void movePositive(String data,int ang){
+  int move = map(ang,0,180,SERVOMIN,SERVOMAX);
+  if(data == "s1"){
+    pwm.setPWM(0,0,move);
+    Serial.print("done");
+  } else if(data == "s2"){
+    pwm.setPWM(1,0,move);
+    Serial.print("done");
+  } else if(data == "s3"){
+    pwm.setPWM(2,0,move);
+    Serial.print("done");
+  } else if(data == "s4"){
+    pwm.setPWM(3,0,move);
+    Serial.print("done");
+  } else if(data == "s5"){
+    pwm.setPWM(4,0,move);
+    Serial.print("done");
+  } else if(data == "s6"){
+    pwm.setPWM(5,0,move);
+    Serial.print("done");
+  }
+}
+
+void moveNegative(String data,int ang){
+  int move = map(-ang,0,180,SERVOMIN,SERVOMAX);
+  if(data == "rs1"){
+    pwm.setPWM(0,0,move);
+    Serial.print("done");
+  } else if(data == "rs2"){
+    pwm.setPWM(1,0,move);
+    Serial.print("done");
+  } else if(data == "rs3"){
+    pwm.setPWM(2,0,move);
+    Serial.print("done");
+  } else if(data == "rs4"){
+    pwm.setPWM(3,0,move);
+    Serial.print("done");
+  } else if(data == "rs5"){
+    pwm.setPWM(4,0,move);
+    Serial.print("done");
+  } else if(data == "rs6"){
+    pwm.setPWM(5,0,move);
+    Serial.print("done");
+  }
 }

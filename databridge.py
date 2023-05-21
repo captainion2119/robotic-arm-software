@@ -117,6 +117,14 @@ def retrv_cur_pos(arm_no,com_port):
     # response = f"data sent to {com_port} and recieved successfully"
     return response
 
+def move_by_one(arm_ang,amt,com_port):
+    ser = serial.Serial(com_port, baudrate=115200, timeout=3) # Adjust baudrate if necessary
+    time.sleep(3)
+    ang = int(amt)
+    message = f"{arm_ang}{ang:03d}\n"
+    ser.write(message.encode())
+    # response = ser.readline().decode().strip() # Read response from serial
+    ser.close()
 
 # import tkinter as tk
 # from tkinter import ttk
