@@ -76,7 +76,7 @@ def send_coordinates(json_file,serial_port,master):
             coordinates = step
             if 'end' in coordinates:
                 break  # End the loop if "end" instruction is encountered
-            message = f"{arm_number}{coordinates['s1']:03d}{coordinates['s2']:03d}{coordinates['s3']:03d}{coordinates['s4']:03d}{coordinates['s5']:03d}\n"
+            message = f"\n{arm_number}{coordinates['s1']:03d}{coordinates['s2']:03d}{coordinates['s3']:03d}{coordinates['s4']:03d}{coordinates['s5']:03d}\n"
             # print(message) #NOTE: USE TO DEBUG
             ser.write(message.encode())
               # Send the coordinates over serial

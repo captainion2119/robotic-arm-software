@@ -42,7 +42,7 @@ select_arm = None
 
 #==================================== Define Panes ====================================
 
-#essential ops
+#essential opsD
 button_frame = tkinter.Frame(root)
 button_frame.pack(side="top")
 
