@@ -42,7 +42,7 @@ select_arm = None
 
 #==================================== Define Panes ====================================
 
-#essential ops
+#essential opsD
 button_frame = tkinter.Frame(root)
 button_frame.pack(side="top")
 
@@ -71,7 +71,7 @@ middle_bottom_pane.grid(row=1,column=1,padx=20,pady=20)
 
 #Task Handler Loader
 def callhandler():
-    taskcreator.create_interface(root)
+    taskcreator.create_interface_angles(root)
 
 def load_tasks():
     files = [f for f in os.listdir(path) if f.endswith('.json')]
