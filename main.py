@@ -42,7 +42,7 @@ select_arm = None
 
 #==================================== Define Panes ====================================
 
-#essential ops
+#essential opsD
 button_frame = tkinter.Frame(root)
 button_frame.pack(side="top")
 
@@ -71,7 +71,7 @@ middle_bottom_pane.grid(row=1,column=1,padx=20,pady=20)
 
 #Task Handler Loader
 def callhandler():
-    taskcreator.create_interface(root)
+    taskcreator.create_interface_angles(root)
 
 def load_tasks():
     files = [f for f in os.listdir(path) if f.endswith('.json')]
@@ -175,6 +175,7 @@ def on_focusout(event, entry, text):
         entry.insert(0, text)
         entry.config(fg="grey")
 
+
 #==================================== Begin Widgets ====================================
 
 #Close minimize util functions
@@ -262,19 +263,16 @@ def select_arm2():
     arm2_selector.configure(bg="green")
     select_arm = 2
 
-def show_servo_spinbox():
-    spinbox_distance.grid_forget()
-    distance_label.grid_forget()
-    label_null.grid_forget()
-    degree_label.grid(row=5,column=0,padx=20,pady=20)
-    spinbox_degree.grid(row=5,column=1,padx=20,pady=20)
 
-def show_arm_spinbox():
-    spinbox_degree.grid_forget()
-    degree_label.grid_forget()
-    label_null.grid_forget()
-    distance_label.grid(row=5,column=0,padx=20,pady=20)
-    spinbox_distance.grid(row=5,column=1,padx=20,pady=20)
+def send_one_move(run_ang):
+    run_port = arm_combobox.get()
+    amt = spinbox_degree.get()
+    print(amt)
+    if run_port:
+        # play_button.invoke()
+        databridge.move_by_one(run_ang,amt,run_port)
+    else:
+        messagebox.showerror("Error","No port selected")
 
 
 #==================================== Widgets Contd. ====================================
@@ -292,24 +290,19 @@ arm2_selector = tkinter.Button(arm_selector,text="Select Arm2", command=select_a
 arm2_selector.grid(row=2,column=1,padx=20,pady=20)
 arm_type_selector = tkinter.LabelFrame(right_pane,text="Select Movement Type",padx=80)
 arm_type_selector.grid(row=3,column=0,padx=20,pady=20,columnspan=2)
-servo_button = tkinter.Button(arm_type_selector, text="Move Servo", command=show_servo_spinbox)
-arm_move_button = tkinter.Button(arm_type_selector, text="Move Arm", command=show_arm_spinbox)
-servo_button.grid(row=4,column=0,padx=20,pady=20)
-arm_move_button.grid(row=4,column=1,padx=20,pady=20)
-label_null = tkinter.Label(arm_type_selector,text="Select Type of Movement")
-label_null.grid(row=5,column=0,padx=20,pady=20,columnspan=2)
-spinbox_degree = tkinter.Spinbox(arm_type_selector, from_=0, to=360, width=10)
+spinbox_degree = tkinter.Spinbox(arm_type_selector, from_=10, to=90, width=10)
 degree_label = tkinter.Label(arm_type_selector,text="Step Degrees (°): ")
-spinbox_distance = tkinter.Spinbox(arm_type_selector, from_=0, to=100, width=10)
-distance_label = tkinter.Label(arm_type_selector,text="Step Distance (mm): ")
+degree_label.grid(row=5,column=0,padx=20,pady=20)
+spinbox_degree.grid(row=5,column=1,padx=20,pady=20)
+
 
 #6 buttons -Tx -Ty -Tz -Rx -Ry -Rz +Tx +Ty +Tz +Rx +Ry +Rz
-tx_button = ttk.Button(right_pane,text="-Tx",padding=(40,10))
-ty_button = ttk.Button(right_pane,text="-Ty",padding=(40,10))
-tz_button = ttk.Button(right_pane,text="-Tz",padding=(40,10))
-rx_button = ttk.Button(right_pane,text="-Rx",padding=(40,10))
-ry_button = ttk.Button(right_pane,text="-Ry",padding=(40,10))
-rz_button = ttk.Button(right_pane,text="-Rz",padding=(40,10))
+tx_button = ttk.Button(right_pane,text="-Tx",padding=(40,10),command=lambda: send_one_move("rs1"))
+ty_button = ttk.Button(right_pane,text="-Ty",padding=(40,10),command=lambda: send_one_move("rs2"))
+tz_button = ttk.Button(right_pane,text="-Tz",padding=(40,10),command=lambda: send_one_move("rs3"))
+rx_button = ttk.Button(right_pane,text="-Rx",padding=(40,10),command=lambda: send_one_move("rs4"))
+ry_button = ttk.Button(right_pane,text="-Ry",padding=(40,10),command=lambda: send_one_move("rs5"))
+rz_button = ttk.Button(right_pane,text="-Rz",padding=(40,10),command=lambda: send_one_move("rs6"))
 tx_button.grid(row=6,column=0,padx=5,pady=5)
 ty_button.grid(row=7,column=0,padx=5,pady=5)
 tz_button.grid(row=8,column=0,padx=5,pady=5)
@@ -317,12 +310,12 @@ rx_button.grid(row=9,column=0,padx=5,pady=5)
 ry_button.grid(row=10,column=0,padx=5,pady=5)
 rz_button.grid(row=11,column=0,padx=5,pady=5)
 
-tx_button = ttk.Button(right_pane,text="+Tx",padding=(40,10))
-ty_button = ttk.Button(right_pane,text="+Ty",padding=(40,10))
-tz_button = ttk.Button(right_pane,text="+Tz",padding=(40,10))
-rx_button = ttk.Button(right_pane,text="+Rx",padding=(40,10))
-ry_button = ttk.Button(right_pane,text="+Ry",padding=(40,10))
-rz_button = ttk.Button(right_pane,text="+Rz",padding=(40,10))
+tx_button = ttk.Button(right_pane,text="+Tx",padding=(40,10),command=lambda: send_one_move("s1"))
+ty_button = ttk.Button(right_pane,text="+Ty",padding=(40,10),command=lambda: send_one_move("s2"))
+tz_button = ttk.Button(right_pane,text="+Tz",padding=(40,10),command=lambda: send_one_move("s3"))
+rx_button = ttk.Button(right_pane,text="+Rx",padding=(40,10),command=lambda: send_one_move("s4"))
+ry_button = ttk.Button(right_pane,text="+Ry",padding=(40,10),command=lambda: send_one_move("s5"))
+rz_button = ttk.Button(right_pane,text="+Rz",padding=(40,10),command=lambda: send_one_move("s6"))
 tx_button.grid(row=6,column=1,padx=5,pady=5)
 ty_button.grid(row=7,column=1,padx=5,pady=5)
 tz_button.grid(row=8,column=1,padx=5,pady=5)
